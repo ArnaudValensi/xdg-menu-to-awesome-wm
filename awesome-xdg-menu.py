@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Author(s): Luke Macken <lmacken@redhat.com>
-#            Miroslav Lichvar <mlichvar@redhat.com>
-#            Edward Sheldrake <ejsheldrake@gmail.com>
-
+# Author(s): Luke Macken <lmacken[at]redhat.com>
+#            Miroslav Lichvar <mlichvar[at]redhat.com>
+#            Edward Sheldrake <ejsheldrake[at]gmail.com>
+#	     Arnaud Valensi <arnaud.valensi[at]gmail.com>
 
 import xdg.Menu, xdg.DesktopEntry, xdg.Config
 import re, sys, os
@@ -80,57 +80,59 @@ def walk_menu(entry):
 			'<command>%s</command></action>' % command
 		print '	</item>'
 
-count = 0
 menu_list = []
-is_first = True
+submenu_list = []
+submenu = []
 
 def generate_awesome_menu(entry):
-	global is_first
+	global submenu
+	global submenu_list
 	if isinstance(entry, xdg.Menu.Menu) and entry.Show is True:
-		global count
 		global menu_list
-		is_first = True
-		if count != 0:
-			print '}'
-			print ''
-		print 'submenu%d =' % count
-		print '{'
-		count = count + 1
 		menu_list.append(entry_name(entry))
-		# print '<menu id="%s" label="%s"%s>' \
-		# 	% (entry_name(entry),
-		# 	entry_name(entry),
-		# 	escape_utf8(icon_attr(entry)))
+
+		if submenu:
+			submenu_list.append(submenu);
+			submenu = []
 		map(generate_awesome_menu, entry.getEntries())
-		# print '</menu>'
 	elif isinstance(entry, xdg.Menu.MenuEntry) and entry.Show is True:
-		if not is_first:
-			elem = ',\n'
-		else:
-			is_first = False
-			elem = ''
-		elem += '  { "%s", ' % \
-			(entry_name(entry.DesktopEntry).replace('"', ''))
-		command = re.sub(' -caption "%c"| -caption %c', ' -caption "%s"' % entry_name(entry.DesktopEntry), entry.DesktopEntry.getExec())
-		command = re.sub(' [^ ]*%[fFuUdDnNickvm]', '', command)
+		second = re.sub(' -caption "%c"| -caption %c', ' -caption "%s"' % entry_name(entry.DesktopEntry), entry.DesktopEntry.getExec())
+		second = re.sub(' [^ ]*%[fFuUdDnNickvm]', '', second)
 		if entry.DesktopEntry.getTerminal():
-			command = 'xterm -title "%s" -e %s' % \
-				(entry_name(entry.DesktopEntry), command)
-		elem += '"%s" }' % command
-		sys.stdout.write(elem)
+			second = 'xterm -title "%s" -e %s' % \
+				(entry_name(entry.DesktopEntry), second)
+		first = entry_name(entry.DesktopEntry).replace('"', '')
+		first = first.replace('"', '\\"')
+		second = second.replace('"', '\\"')
+		submenu.append((first, second));
 
 def generate_main_menu():
+	global submenu_list
 	global menu_list
-	content = ""
-	i = 0
 
-	print '\nmyappmenu = \n{'
-	for elem in menu_list:
-		if i != len(menu_list) and i != 0:
-			content += ',\n'
-		content += '  { "%s", submenu%d }' % (elem, i)
+	print submenu_list
+	print menu_list
+
+	i = 0
+	for elem in submenu_list:
+		print "submenu%d =\n{" % i
+		j = 0
+		for entry in elem:
+			if j == len(elem) - 1:
+				print "  { \"%s\", \"%s\" }" % (entry[0], entry[1])
+			else:
+				print "  { \"%s\", \"%s\" }," % (entry[0], entry[1])
+			j += 1
+		print '}'
 		i += 1
-	print content
+	print 'myappmenu =\n{'
+	i = 0
+	for entry in menu_list:
+		if i == len(submenu_list):
+			print "  { \"%s\", submenu%d }" % (entry, i)
+		else:
+			print "  { \"%s\", submenu%d }," % (entry, i)
+		i += 1
 	print '}'
 
 if len(sys.argv) > 1:
