@@ -110,8 +110,8 @@ def generate_main_menu():
 	global submenu_list
 	global menu_list
 
-	print submenu_list
-	print menu_list
+	# print submenu_list
+	# print menu_list
 
 	i = 0
 	for elem in submenu_list:
