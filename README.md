@@ -5,10 +5,13 @@ Converts a xdg-menu like gnome menu awesome wm format
 
 How To
 ======================
+```bash
 $ python awesome-xdg-menu.py > ~/.config/awesome/menu.lua
+```
 
 After you have to add "menu.lua" in your "rc.lua", mine look like this:
 
+```lua
 -- {{{ Menu
 -- Create a laucher widget and a main menu
 
@@ -35,3 +38,4 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 
 
 -- }}}
+```
