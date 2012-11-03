@@ -1,7 +1,7 @@
 xdg-menu-to-awesome-wm
 ======================
 
-Converts a xdg-menu like gnome menu awesome wm format
+Converts a xdg-menu like gnome menu to awesome wm format
 
 How To
 ======================
