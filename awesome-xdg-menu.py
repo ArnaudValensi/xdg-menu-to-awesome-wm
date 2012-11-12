@@ -128,7 +128,7 @@ def generate_main_menu():
 	print 'myappmenu =\n{'
 	i = 0
 	for entry in menu_list:
-		if i == len(submenu_list):
+		if i == len(menu_list) - 1:
 			print "  { \"%s\", submenu%d }" % (entry, i)
 		else:
 			print "  { \"%s\", submenu%d }," % (entry, i)
